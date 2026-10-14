@@ -1,0 +1,1 @@
+Add your GIF files here, then edit GIF_FILES in ../script.js to match their names.
