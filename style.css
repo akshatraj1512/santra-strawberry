@@ -158,15 +158,18 @@ button { font: inherit; }
 }
 .finale-heading { margin: 0 0 24px; }
 .gif-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  position: relative;
+  display: block;
+  width: min(82vw, 780px);
+  height: min(34vh, 280px);
   max-width: 620px;
   margin: 6px auto 20px;
+  overflow: visible;
+  border: none;
+  background: transparent;
 }
 .gif-sticker {
+  position: absolute;
   width: clamp(76px, 24vw, 130px);
   height: clamp(76px, 24vw, 130px);
   object-fit: contain;

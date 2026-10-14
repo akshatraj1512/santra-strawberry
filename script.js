@@ -10,12 +10,13 @@ const PHOTO_FILES = Array.from({ length: 50 }, (_, i) =>
 
 // Replace these example filenames with the exact names of your 5–7 GIFs.
 const GIF_FILES = [
-  "assets/gifs/cat-01.gif",
-  "assets/gifs/cat-02.gif",
-  "assets/gifs/kuromi-01.gif",
-  "assets/gifs/cat-03.gif",
-  "assets/gifs/kuromi-02.gif",
-  "assets/gifs/cat-04.gif"
+  "assets/gifs/1.gif",
+  "assets/gifs/2.gif",
+  "assets/gifs/3.gif",
+  "assets/gifs/4.gif",
+  "assets/gifs/5.gif",
+  "assets/gifs/6.gif",
+  "assets/gifs/7.gif"
 ];
 
 const intro = document.querySelector("#intro");
@@ -387,6 +388,100 @@ function blastPhotos() {
   }, 780);
 }
 
+function setupGifMotion() {
+  const gifs = [...gifGallery.querySelectorAll(".gif-sticker")];
+  if (!gifs.length) return;
+
+  const areaWidth = gifGallery.clientWidth || window.innerWidth;
+  const areaHeight = gifGallery.clientHeight || window.innerHeight;
+
+  const particles = gifs.map((img, index) => {
+    const size = Math.max(60, Math.min(110, img.naturalWidth || 100));
+    const x = random(10, Math.max(10, areaWidth - size - 20));
+    const y = random(10, Math.max(10, areaHeight - size - 20));
+    const vx = random(-0.7, 0.7);
+    const vy = random(-0.7, 0.7);
+
+    img.style.position = "absolute";
+    img.style.left = `${x}px`;
+    img.style.top = `${y}px`;
+    img.style.width = `${size}px`;
+    img.style.height = `${size}px`;
+    img.style.zIndex = String(index + 1);
+    img.style.transform = "rotate(0deg)";
+
+    return { img, x, y, vx, vy, size };
+  });
+
+  function frame() {
+    const width = gifGallery.clientWidth || window.innerWidth;
+    const height = gifGallery.clientHeight || window.innerHeight;
+
+    particles.forEach((particle) => {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+
+      if (particle.x <= 5) {
+        particle.x = 5;
+        particle.vx *= -1;
+      }
+      if (particle.x + particle.size >= width - 5) {
+        particle.x = width - particle.size - 5;
+        particle.vx *= -1;
+      }
+      if (particle.y <= 5) {
+        particle.y = 5;
+        particle.vy *= -1;
+      }
+      if (particle.y + particle.size >= height - 5) {
+        particle.y = height - particle.size - 5;
+        particle.vy *= -1;
+      }
+
+      particle.img.style.left = `${particle.x}px`;
+      particle.img.style.top = `${particle.y}px`;
+    });
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i];
+        const b = particles[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distance = Math.hypot(dx, dy) || 0.001;
+        const minDistance = (a.size + b.size) / 2;
+
+        if (distance < minDistance) {
+          const nx = dx / distance;
+          const ny = dy / distance;
+          const overlap = minDistance - distance;
+
+          a.x -= nx * overlap * 0.5;
+          a.y -= ny * overlap * 0.5;
+          b.x += nx * overlap * 0.5;
+          b.y += ny * overlap * 0.5;
+
+          const rvx = b.vx - a.vx;
+          const rvy = b.vy - a.vy;
+          const velAlongNormal = rvx * nx + rvy * ny;
+
+          if (velAlongNormal < 0) {
+            const impulse = -(0.9 * velAlongNormal);
+            a.vx -= impulse * nx;
+            a.vy -= impulse * ny;
+            b.vx += impulse * nx;
+            b.vy += impulse * ny;
+          }
+        }
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
 function showFinale() {
   showScreen(finale);
   gifGallery.replaceChildren();
@@ -405,6 +500,7 @@ function showFinale() {
     gifGallery.appendChild(img);
   });
 
+  setupGifMotion();
   typeMessage("that time of the year when we both the same age, cheers!");
   playMarioVictory();
 }
