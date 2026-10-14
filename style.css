@@ -119,18 +119,14 @@ button { font: inherit; }
   position: absolute;
   top: -180px;
   width: var(--photo-width, 90px);
-  max-width: 31vw;
+  max-width: 28vw;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(3px 4px 0 rgba(53,23,42,.18));
   animation: fall var(--duration, 5s) linear forwards;
-  will-change: transform, top;
-}
-.photo-drop.settled {
-  animation: none;
-  top: var(--settle-y);
-  left: var(--settle-x);
-  transform: rotate(var(--tilt, 0deg));
+  transform-origin: center center;
+  will-change: transform, top, left;
+  opacity: 0.98;
 }
 .rain-footer {
   position: absolute;
@@ -202,15 +198,91 @@ button { font: inherit; }
   animation: confettiDrift 5s linear infinite;
 }
 
-.blast-particle {
+/* === SANTRA SNOWFALL: GRID-BASED PHOTO LAYOUT === */
+
+#photoField .grid-photo-drop {
   position: absolute;
-  z-index: 10;
-  pointer-events: none;
-  animation: blastAway .75s cubic-bezier(.1,.7,.3,1) forwards;
+  left: var(--slot-x);
+  top: -150px;
+
+  width: var(--slot-width);
+  height: var(--slot-height);
+  max-width: none;
+
+  object-fit: contain;
+  padding: 2px;
+  box-sizing: border-box;
+
+  animation:
+    santraGridFall
+    var(--fall-duration)
+    ease-in-out
+    var(--fall-delay)
+    forwards;
+
+  will-change: top, transform;
 }
+
+@keyframes santraGridFall {
+  0% {
+    top: -150px;
+    transform: rotate(-15deg);
+  }
+
+  25% {
+    transform: rotate(12deg);
+  }
+
+  50% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(9deg);
+  }
+
+  100% {
+    top: var(--target-y);
+    transform: rotate(var(--final-tilt));
+  }
+}
+
+#photoField .grid-photo-drop.blast-particle {
+  animation: blastAway 0.75s cubic-bezier(.1, .7, .3, 1) forwards !important;
+}
+
+#photoField {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 400px) {
+  #photoField .grid-photo-drop {
+    padding: 1px;
+  }
+}
+
 @keyframes fall {
-  0% { top: -180px; transform: translateX(0) rotate(0); }
-  100% { top: var(--settle-y); transform: translateX(var(--drift, 0px)) rotate(var(--tilt, 0deg)); }
+  0% {
+    top: -180px;
+    left: var(--left, 0px);
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate3d(calc(var(--sway) * 0.2), 10vh, 0) rotate(6deg);
+  }
+  50% {
+    transform: translate3d(calc(var(--sway) * 0.7), 45vh, 0) rotate(-8deg);
+  }
+  80% {
+    transform: translate3d(calc(var(--sway) * 0.4), 78vh, 0) rotate(5deg);
+  }
+  100% {
+    top: 110vh;
+    left: calc(var(--left, 0px) + var(--sway));
+    transform: translate3d(calc(var(--sway) * 0.9), 0, 0) rotate(8deg);
+  }
 }
 @keyframes blastAway {
   0% { opacity: 1; transform: translate(0,0) scale(1) rotate(0); }
@@ -221,9 +293,60 @@ button { font: inherit; }
 @keyframes stickerBounce { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-8px) rotate(4deg); } }
 @keyframes confettiDrift { from { background-position: 0 0, 20px 0, 0 20px; } to { background-position: 0 120px, 20px 160px, 0 100px; } }
 
+/* Organic, chaotic Santra sticker collage */
+
+#photoField .organic-photo {
+  position: absolute;
+  top: -180px;
+  max-width: none;
+  object-fit: contain;
+  padding: 0;
+  filter: drop-shadow(2px 3px 2px rgba(70, 20, 45, 0.22));
+
+  animation-name: organicPhotoFall;
+  animation-duration: var(--fall-duration);
+  animation-delay: var(--fall-delay);
+  animation-timing-function: cubic-bezier(.22, .65, .35, 1);
+  animation-fill-mode: both;
+
+  will-change: top, transform;
+}
+
+@keyframes organicPhotoFall {
+  0% {
+    top: -180px;
+    transform: translateX(0) rotate(-8deg);
+  }
+
+  20% {
+    transform: translateX(var(--sway)) rotate(13deg);
+  }
+
+  43% {
+    transform: translateX(var(--sway2)) rotate(-12deg);
+  }
+
+  68% {
+    transform: translateX(var(--sway)) rotate(9deg);
+  }
+
+  85% {
+    transform: translateX(var(--sway2)) rotate(-5deg);
+  }
+
+  100% {
+    top: var(--target-y);
+    transform: translateX(0) rotate(var(--tilt));
+  }
+}
+
+#photoField .organic-photo.blast-particle {
+  animation: blastAway .75s cubic-bezier(.1, .7, .3, 1) forwards !important;
+}
+
 @media (min-width: 700px) {
   .pixel-title { font-size: 48px; }
-  .photo-drop { max-width: 180px; }
+  .photo-drop { max-width: 210px; }
   .rain-head { top: 26px; }
   .rain-footer { bottom: 28px; }
 }
